@@ -69,7 +69,7 @@ def deprocess(image_tensor):
 
 def extract_video_frames(video_path: str) -> str:
     # Create output dir
-    video_name = get_video_name(video_path)
+    video_name = get_base_name(video_path)
     source_frame_path = os.path.join(os.curdir, "{}_frames/".format(video_name))
     if not os.path.exists(source_frame_path):
         os.makedirs(source_frame_path)
@@ -83,7 +83,7 @@ def extract_video_frames(video_path: str) -> str:
     return source_frame_path
 
 
-def get_video_name(video_path: str) -> str:
+def get_base_name(video_path: str) -> str:
     return str(ntpath.basename(video_path).split(".")[0])
 
 

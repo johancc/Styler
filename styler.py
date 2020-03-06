@@ -46,7 +46,7 @@ def validate_arguments(args) -> Tuple[str, bool]:
 
 
 def main(video_path, model_path, background, foreground, output_path, keep_temp=False):
-    video_name = get_video_name(video_path)
+    video_name = get_base_name(video_path)
     audio_file = create_audio_file(video_path)
     # Get all the frames_path
     print("Extracting frames...")
