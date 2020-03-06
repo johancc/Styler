@@ -14,5 +14,4 @@ Python packages: requirements.txt
 
 ### TODO:
 - Add segmentation functionality
-- Implement training 
 - Implement the style & segmentation merge functionality
