@@ -12,7 +12,13 @@ Command line tools:
 
 Python packages: requirements.txt
 
+## Segmentation
+Segmentation is done by CDCL Human Part Segmentation. Styler merely 
+feeds the video frames into the segmentation library and uses its
+output to style the foreground or background. 
+
+
 ### TODO:
-- Add segmentation functionality
 - Implement training 
 - Implement the style & segmentation merge functionality
+- Flow-based styling might yield more interesting videos.

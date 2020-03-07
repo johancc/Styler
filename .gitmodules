@@ -1,0 +1,3 @@
+[submodule "CDCL-human-part-segmentation"]
+	path = CDCL-human-part-segmentation
+	url = https://github.com/kevinlin311tw/CDCL-human-part-segmentation.git

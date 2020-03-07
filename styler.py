@@ -54,7 +54,7 @@ def main(video_path, model_path, background, foreground, output_path, keep_temp=
     print("Styling frames...")
     style_dir = style_frames(model_path, frame_dir, style_dir="{}_styled/".format(video_name))
     if background or foreground:
-        segmentation_dir = segment_frames(frame_dir)
+        segmentation_dir = segment_frames(frame_dir, output_dir="{}_segmented/")
 
         segmented_styled_frames = apply_style_over_segmentation(original=frame_dir,
                                                                 styled=style_dir,
