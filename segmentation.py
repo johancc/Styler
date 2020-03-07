@@ -15,3 +15,9 @@ def segment(frames_folder: str, output_folder):
     out, err = p.communicate()
 
     return out, err
+
+
+def apply_style_over_segmentation(original_folder: str, style_folder: str,
+                                  segmentation_folder: str, output_folder: str,
+                                  mode: int):
+    pass
