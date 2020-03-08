@@ -23,7 +23,8 @@ parser.add_argument("--background", default=False, type=bool, help="Apply the st
 parser.add_argument("--foreground", default=False, type=bool, help="Apply the style only to the foreground (humans).")
 parser.add_argument("--output_path", default="styled_videos/", type=str, help="Folder to output the styled videos to.")
 parser.add_argument("--keep_temp", default=False, type=bool, help="Keep temporary files (frames, styled frames, etc).")
-
+parser.add_argument("--framerate", default=30, type=int, help="Frame rate of the video (normally 24 or 30)."
+                                                              " Defaults to 30.")
 
 # TODO: Add the option to add the source directory for frames_path (no need to split the frames_path if already split)
 # TODO: Add automatic frame rate detection.
@@ -45,7 +46,7 @@ def validate_arguments(args) -> Tuple[str, bool]:
     return message, err
 
 
-def main(video_path, model_path, background, foreground, output_path, keep_temp=False):
+def main(video_path, model_path, background, foreground, output_path, frame_rate, keep_temp=False):
     video_name = get_base_name(video_path)
     audio_file = create_audio_file(video_path)
     # Get all the frames_path
@@ -64,12 +65,12 @@ def main(video_path, model_path, background, foreground, output_path, keep_temp=
         styled_video = frames_to_video(frames_path=segmented_styled_frames,
                                        video_name=video_name,
                                        output_path=output_path,
-                                       frame_rate=30)
+                                       frame_rate=frame_rate)
     else:
         styled_video = frames_to_video(frames_path=style_dir,
                                        video_name=video_name,
                                        output_path=output_path,
-                                       frame_rate=30)
+                                       frame_rate=frame_rate)
     final_video_name = os.path.join(output_path, video_name + "_styled.mp4")
     add_audio_to_video(styled_video, audio_file, final_video_name)
     assert (os.path.isfile(final_video_name))
