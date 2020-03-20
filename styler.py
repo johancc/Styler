@@ -13,7 +13,7 @@ from typing import Tuple
 
 from torchvision.utils import save_image
 
-from segmentation import apply_style_over_segmentation
+from segmentation import segment, apply_style_over_segmentation
 from styler_lib import *
 
 parser = argparse.ArgumentParser()
@@ -55,7 +55,7 @@ def main(video_path, model_path, background, foreground, output_path, frame_rate
     print("Styling frames...")
     style_dir = style_frames(model_path, frame_dir, style_dir="{}_styled/".format(video_name))
     if background or foreground:
-        segmentation_dir = segment_frames(frame_dir, output_dir="{}_segmented/".format(video_name))
+        segmentation_dir = segment(frame_dir, "{}_segmented/".format(video_name))
 
         segmented_styled_frames = apply_style_over_segmentation(original_folder=frame_dir,
                                                                 style_folder=style_dir,
@@ -103,11 +103,6 @@ def style_frames(checkpoint_path: str, frame_dir: str, style_dir: str):
         save_image(frame, os.path.join(style_dir, "{}.jpg".format(i)))
 
     return style_dir
-
-
-def segment_frames(frame_dir: str, output_dir: str = "segmentation/") -> str:
-    # For every frame, run CDCL
-    pass
 
 
 if __name__ == '__main__':
