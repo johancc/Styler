@@ -89,6 +89,8 @@ def get_base_name(video_path: str) -> str:
 
 def create_audio_file(video_path: str) -> str:
     audio_name = video_path.split(".")[0] + ".aac"
+    if os.path.isfile(audio_name):
+        os.remove(audio_name)
     command = "ffmpeg -i {} -vn {}".format(video_path, audio_name)
     p = subprocess.Popen(command.split(" "),
                          stdout=subprocess.PIPE,
