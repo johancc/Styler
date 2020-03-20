@@ -21,9 +21,9 @@ def segment(frames_folder: str, output_folder):
 
     command = "./run_segmentation.sh {} {}".format(frames_folder, output_folder)
     p = subprocess.Popen(command.split(" "), stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-    out, err = p.communicate()
-
-    return out, err
+    p.communicate()
+    assert os.path.exists(output_folder)
+    return output_folder
 
 
 def apply_style_over_segmentation(original_folder: str, style_folder: str,
