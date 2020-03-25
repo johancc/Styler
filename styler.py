@@ -23,7 +23,7 @@ parser.add_argument("--background", default=False, type=bool, help="Apply the st
 parser.add_argument("--foreground", default=False, type=bool, help="Apply the style only to the foreground (humans).")
 parser.add_argument("--output_path", default="styled_videos/", type=str, help="Folder to output the styled videos to.")
 parser.add_argument("--keep_temp", default=False, type=bool, help="Keep temporary files (frames, styled frames, etc).")
-parser.add_argument("--framerate", default=30, type=int, help="Frame rate of the video (normally 24 or 30)."
+parser.add_argument("--frame_rate", default=30, type=int, help="Frame rate of the video (normally 24 or 30)."
                                                               " Defaults to 30.")
 
 # TODO: Add the option to add the source directory for frames_path (no need to split the frames_path if already split)
@@ -111,7 +111,7 @@ if __name__ == '__main__':
     if err:
         print(message)
         exit(1)
-    styled_video = main(args.video, args.style_model,
-                        args.background, args.foreground,
-                        args.output_path, args.keep_temp)
+    styled_video = main(video_path=args.video, model_path=args.style_model,
+                        background=args.background, foreground=args.foreground,
+                        output_path=args.output_path, frame_rate=args.frame_rate, keep_temp=args.keep_temp)
     print("Created styled video: ", styled_video)
