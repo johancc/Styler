@@ -31,13 +31,15 @@ if __name__ == "__main__":
     parser.add_argument("--checkpoint_interval", type=int, default=2000, help="Batches between saving model")
     parser.add_argument("--sample_interval", type=int, default=1000, help="Batches between saving image samples")
     args = parser.parse_args()
-
+    print("Loading dataset...")
     style_name = get_base_name(args.style_image)
     os.makedirs(f"training/outputs/{style_name}-training", exist_ok=True)
     os.makedirs(f"checkpoints", exist_ok=True)
 
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     mean, std = calculate_mean_and_std(args.dataset_path)
+    print("Please save the mean and standard deviation, this is needed when running inference.")
+    print("Mean: ", mean, " STD: ", std)
     # Create data loader for the training data
     train_dataset = datasets.ImageFolder(args.dataset_path, train_transform(args.image_size, mean, std))
     dataloader = DataLoader(train_dataset, batch_size=args.batch_size)
@@ -130,6 +132,8 @@ if __name__ == "__main__":
             batches_done = epoch * len(dataloader) + batch_i + 1
 
             if args.checkpoint_interval > 0 and batches_done % args.checkpoint_interval == 0:
-                checkpoint_path = os.path.join(TRAINING_DIR, "{}-training".format(style_name),
-                                               "checkpoints", "{}_{}.pth".format(style_name, batches_done))
+                checkpoint_folder = os.path.join(TRAINING_DIR, "{}-training".format(style_name),
+                                                "checkpoints")
+                os.makedirs(checkpoint_folder, exist_ok=True)
+                checkpoint_path = os.path.join(checkpoint_folder, "{}_{}.pth".format(style_name, batches_done))
                 torch.save(transformer.state_dict(), checkpoint_path)
