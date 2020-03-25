@@ -44,6 +44,7 @@ def apply_style_over_segmentation(original_folder: str, style_folder: str,
         out_name = os.path.join(output_folder, original_frames[i])
         merged_frame = merge_difference(original_frame_path, segmented_frame_path, change_frame_path, out_name, mode)
         final_frames.append(merged_frame)
+    return output_folder
 
 
 def merge_difference(original_path: str, change_path: str, custom_replacement: str, out_name: str, mode: int = 0):
