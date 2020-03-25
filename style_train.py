@@ -126,11 +126,6 @@ if __name__ == "__main__":
                     np.mean(epoch_metrics["total"]),
                 )
             )
-
-            batches_done = epoch * len(dataloader) + batch_i + 1
-            if batches_done % args.sample_interval == 0:
-                save_sample(batches_done)
-
             if args.checkpoint_interval > 0 and batches_done % args.checkpoint_interval == 0:
                 checkpoint_path = os.path.join(TRAINING_DIR, "{}-training".format(style_name),
                                                "checkpoints", "{}_{}.pth".format(style_name, batches_done))
