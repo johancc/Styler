@@ -7,8 +7,11 @@ def check_args(args):
 
 
 def calculate_mean_and_std(dataset_path):
-    dataset = datasets.ImageFolder(dataset_path)
-    dataloader = DataLoader(dataset, batch_size=8)
+    tensor_transform = transforms.Compose([
+        transforms.ToTensor()
+    ])
+    dataset = datasets.ImageFolder(dataset_path, transform=tensor_transform)
+    dataloader = DataLoader(dataset, batch_size=8,)
     mean = 0.
     std = 0.
     for images, _ in dataloader:

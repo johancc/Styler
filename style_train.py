@@ -33,11 +33,11 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     style_name = get_base_name(args.style_image)
-    os.makedirs(f"images/outputs/{style_name}-training", exist_ok=True)
+    os.makedirs(f"training/outputs/{style_name}-training", exist_ok=True)
     os.makedirs(f"checkpoints", exist_ok=True)
 
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    mean, std = calculate_mean_and_std(args.train_dataset)
+    mean, std = calculate_mean_and_std(args.dataset_path)
     # Create data loader for the training data
     train_dataset = datasets.ImageFolder(args.dataset_path, train_transform(args.image_size, mean, std))
     dataloader = DataLoader(train_dataset, batch_size=args.batch_size)
@@ -52,7 +52,7 @@ if __name__ == "__main__":
     l2_loss = torch.nn.MSELoss().to(device)
 
     # Load style image
-    style = get_preprocessor(args.style_size)(Image.open(args.style_image)).squeeze(0)
+    style = get_preprocessor(args.style_size)(args.style_image).squeeze(0)
     style = style.repeat(args.batch_size, 1, 1, 1).to(device)
 
     # Extract style features
@@ -61,9 +61,12 @@ if __name__ == "__main__":
 
     # Sample 8 images for visual evaluation of the model
     image_samples = []
-    for path in random.sample(os.listdir(args.dataset_path), 8):
-        if path.ends_with(".jpg" or ".png"):
-            image_samples += [get_preprocessor(args.image_size)(Image.open(os.path.join(args.dataset_path, path)))]
+    
+    for directory in os.listdir(args.dataset_path):
+        dir_path = os.path.join(args.dataset_path, directory)
+        for img_path in random.sample(os.listdir(dir_path), 8):
+            if ".jpg" in img_path or ".png" in img_path:
+                image_samples += [get_preprocessor(args.image_size)(os.path.join(dir_path, img_path))]
     image_samples = torch.stack(image_samples)
 
 
