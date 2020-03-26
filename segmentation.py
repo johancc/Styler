@@ -32,12 +32,14 @@ def apply_style_over_segmentation(original_folder: str, style_folder: str,
     """
     mode - 0 if the human should be styled, 1 if the background should be styled.
     """
+    if not os.path.exists(output_folder):
+        os.makedirs(output_folder)
+
     original_frames = sorted(os.listdir(original_folder))
     styled_frames = sorted(os.listdir(style_folder))
     segmented_frames = sorted(os.listdir(segmentation_folder))
-
     final_frames = []
-    for i in range(len(original_folder)):
+    for i in range(len(original_frames)):
         original_frame_path = os.path.join(original_folder, original_frames[i])
         change_frame_path = os.path.join(style_folder, styled_frames[i])
         segmented_frame_path = os.path.join(segmentation_folder, segmented_frames[i])
