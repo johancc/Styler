@@ -48,6 +48,7 @@ def validate_arguments(args) -> Tuple[str, bool]:
 
 def main(video_path, model_path, background, foreground, output_path, frame_rate, keep_temp=False):
     video_name = get_base_name(video_path)
+    style_name = get_base_name(model_path)
     audio_file = create_audio_file(video_path)
     # Get all the frames_path
     print("Extracting frames...")
@@ -72,7 +73,7 @@ def main(video_path, model_path, background, foreground, output_path, frame_rate
                                        video_name=video_name,
                                        output_path=output_path,
                                        frame_rate=frame_rate)
-    final_video_name = os.path.join(output_path, video_name + "_styled.mp4")
+    final_video_name = os.path.join(output_path, video_name + "_{}_style.mp4".format(style_name))
     add_audio_to_video(styled_video, audio_file, final_video_name)
     assert (os.path.isfile(final_video_name))
     if not keep_temp:
