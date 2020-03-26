@@ -2,7 +2,7 @@ import argparse
 import os
 import random
 import sys
-
+import math
 import numpy as np
 import torch
 import tqdm
@@ -128,12 +128,19 @@ if __name__ == "__main__":
                     np.mean(epoch_metrics["total"]),
                 )
             )
-
+            # If the loss explodes or vanishes, stop here.
+            abort = False
+            for x in (style_loss.item(), total_loss.item(), content_loss.item()):
+                if math.isinf(x) or math.isnan(x):
+                    print("Gradient vanished or exploded. Saving model.")
+                    abort = True
             batches_done = epoch * len(dataloader) + batch_i + 1
 
-            if args.checkpoint_interval > 0 and batches_done % args.checkpoint_interval == 0:
+            if args.checkpoint_interval > 0 and batches_done % args.checkpoint_interval == 0 or abort:
                 checkpoint_folder = os.path.join(TRAINING_DIR, "{}-training".format(style_name),
                                                 "checkpoints")
                 os.makedirs(checkpoint_folder, exist_ok=True)
                 checkpoint_path = os.path.join(checkpoint_folder, "{}_{}.pth".format(style_name, batches_done))
                 torch.save(transformer.state_dict(), checkpoint_path)
+                if abort:
+                    break
