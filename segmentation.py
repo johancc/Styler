@@ -3,16 +3,17 @@ Runs segmentation on a batch of frames. Wrapper for the CDCL-human-part-segmenta
 """
 import os
 import subprocess
-
+import tqdm
 from PIL import Image
 
-# The segmented frame has a dark mask over the whole image, and the
-# human sections have are colored. Thus, we cannot use a simple bitwise_and
-# to create the final segmented image. We thus need to look at how different
-# the pixels are. The threshold is the max rgb difference from the original
-# and segmented image.
-THRESHOLD = 155
-
+# The human mask can be any one of the 4 mask colors. We have to have some range of pixel values which
+# we can accept since the mask color + underlying human has some variability.
+MASK_DIFF_THRESHOLD = 65
+MASK_COLORS = [(240, 90, 100), # red
+               (160, 80, 10), # orange
+               (190, 179, 18), # yellow
+               (155, 143, 139), # white-gray
+               ]
 
 def segment(frames_folder: str, output_folder):
     for f in [frames_folder, output_folder]:
@@ -39,7 +40,7 @@ def apply_style_over_segmentation(original_folder: str, style_folder: str,
     styled_frames = sorted(os.listdir(style_folder))
     segmented_frames = sorted(os.listdir(segmentation_folder))
     final_frames = []
-    for i in range(len(original_frames)):
+    for i in tqdm.tqdm(list(range(len(original_frames)))):
         original_frame_path = os.path.join(original_folder, original_frames[i])
         change_frame_path = os.path.join(style_folder, styled_frames[i])
         segmented_frame_path = os.path.join(segmentation_folder, segmented_frames[i])
@@ -49,32 +50,35 @@ def apply_style_over_segmentation(original_folder: str, style_folder: str,
     return output_folder
 
 
-def merge_difference(original_path: str, change_path: str, custom_replacement: str, out_name: str, mode: int = 0):
-    if custom_replacement is None:
-        custom_replacement = change_path
+def merge_difference(original_path: str, segmented_img_path: str, style_img_path: str, out_name: str, mode: int = 0):
+    if style_img_path is None:
+        style_img_path = segmented_img_path
     original = Image.open(original_path)
     o_pix = original.load()
-    change = Image.open(change_path)
-    custom = Image.open(custom_replacement)
+    segmented = Image.open(segmented_img_path)
+    custom = Image.open(style_img_path)
     c_pix = custom.load()
-    assert original.size == change.size
+    assert original.size == segmented.size
     width, height = original.size
 
     for x in range(width):
         for y in range(height):
             # Change to >= if you want to get the foreground
-            dist = distance_fx(original.getpixel((x, y)), (0, 0, 0))
-            is_foreground = dist < THRESHOLD
-            is_background = dist >= THRESHOLD
-            if mode == 0 and is_foreground:
+            pixel_is_foreground = is_foreground(segmented.getpixel((x,y)))
+            if mode == 0 and pixel_is_foreground:
                 o_pix[x, y] = c_pix[x, y]
-            elif mode == 1 and is_background:
+            elif mode == 1 and not pixel_is_foreground:
                 o_pix[x, y] = c_pix[x, y]
 
     original.save(out_name)
     assert os.path.isfile(out_name)
     return out_name
 
+def is_foreground(pixel):
+    for mask_color in MASK_COLORS:
+        if distance_fx(pixel, mask_color) <= MASK_DIFF_THRESHOLD:
+            return True
+    return False
 
 def distance_fx(a, b):
     assert len(a) == len(b)
