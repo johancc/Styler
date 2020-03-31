@@ -7,6 +7,6 @@ cd CDCL-human-part-segmentation/ || exit
 mkdir "$3"_output
 python3 inference_7parts.py --scale=1 --gpus="$4" --input_folder="$3"_input --output_folder="$3"_output
 mv "$3"_output/* ../"$2"
-rmdir "$3"_output
-rmdir "$3"_input
+rm -r "$3"_output
+rm -r "$3"_input
 cd .. || exit
