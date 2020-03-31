@@ -15,12 +15,12 @@ MASK_COLORS = [(240, 90, 100), # red
                (155, 143, 139), # white-gray
                ]
 
-def segment(frames_folder: str, output_folder):
+def segment(base_name: str, frames_folder: str, output_folder, gpus: int):
     for f in [frames_folder, output_folder]:
         if not os.path.exists(f):
             os.makedirs(f)
 
-    command = "./run_segmentation.sh {} {}".format(frames_folder, output_folder)
+    command = "./run_segmentation.sh {} {} {} {}".format(frames_folder, output_folder, base_name, gpus)
     p = subprocess.Popen(command.split(" "), stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     p.communicate()
     assert os.path.exists(output_folder)

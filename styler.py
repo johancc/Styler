@@ -25,7 +25,7 @@ parser.add_argument("--output_path", default="styled_videos/", type=str, help="F
 parser.add_argument("--keep_temp", default=False, type=bool, help="Keep temporary files (frames, styled frames, etc).")
 parser.add_argument("--frame_rate", default=30, type=int, help="Frame rate of the video (normally 24 or 30)."
                                                               " Defaults to 30.")
-
+parser.add_argument("--gpus", default=1, type=int, help="Number of gpus to use during segmentation.")
 # TODO: Add the option to add the source directory for frames_path (no need to split the frames_path if already split)
 # TODO: Add automatic frame rate detection.
 
@@ -46,7 +46,7 @@ def validate_arguments(args) -> Tuple[str, bool]:
     return message, err
 
 
-def main(video_path, model_path, background, foreground, output_path, frame_rate, keep_temp=False):
+def main(video_path, model_path, background, foreground, output_path, frame_rate, keep_temp=False, gpus=1):
     video_name = get_base_name(video_path)
     style_name = get_base_name(model_path)
     audio_file = create_audio_file(video_path)
@@ -57,7 +57,7 @@ def main(video_path, model_path, background, foreground, output_path, frame_rate
     style_dir = style_frames(model_path, frame_dir, style_dir="{}_styled/".format(video_name))
     if background or foreground:
         print("Applying segmentation...(will take a while (~10 min per 500 frames)")
-        segmentation_dir = segment(frame_dir, "{}_segmented/".format(video_name))
+        segmentation_dir = segment(video_name, frame_dir, "{}_segmented/".format(video_name), gpus)
         print("Merging styled and segmented frames...")
         segmented_styled_frames = apply_style_over_segmentation(original_folder=frame_dir,
                                                                 style_folder=style_dir,
@@ -115,5 +115,5 @@ if __name__ == '__main__':
         exit(1)
     styled_video = main(video_path=args.video, model_path=args.style_model,
                         background=args.background, foreground=args.foreground,
-                        output_path=args.output_path, frame_rate=args.frame_rate, keep_temp=args.keep_temp)
+                        output_path=args.output_path, frame_rate=args.frame_rate, keep_temp=args.keep_temp, gpus=args.gpus)
     print("Created styled video: ", styled_video)
