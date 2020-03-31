@@ -4,16 +4,8 @@ Runs segmentation on a batch of frames. Wrapper for the CDCL-human-part-segmenta
 import os
 import subprocess
 import tqdm
+import cv2
 from PIL import Image
-
-# The human mask can be any one of the 4 mask colors. We have to have some range of pixel values which
-# we can accept since the mask color + underlying human has some variability.
-MASK_DIFF_THRESHOLD = 65
-MASK_COLORS = [(240, 90, 100), # red
-               (160, 80, 10), # orange
-               (190, 179, 18), # yellow
-               (155, 143, 139), # white-gray
-               ]
 
 def segment(base_name: str, frames_folder: str, output_folder, gpus: int):
     for f in [frames_folder, output_folder]:
@@ -45,44 +37,36 @@ def apply_style_over_segmentation(original_folder: str, style_folder: str,
         change_frame_path = os.path.join(style_folder, styled_frames[i])
         segmented_frame_path = os.path.join(segmentation_folder, segmented_frames[i])
         out_name = os.path.join(output_folder, original_frames[i])
-        merged_frame = merge_difference(original_frame_path, segmented_frame_path, change_frame_path, out_name, mode)
+        merged_frame = apply_style_over_original_with_mask(original_frame_path, change_frame_path, segmented_frame_path, out_name, mode)
         final_frames.append(merged_frame)
     return output_folder
 
 
-def merge_difference(original_path: str, segmented_img_path: str, style_img_path: str, out_name: str, mode: int = 0):
-    if style_img_path is None:
-        style_img_path = segmented_img_path
-    original = Image.open(original_path)
-    o_pix = original.load()
-    segmented = Image.open(segmented_img_path)
-    custom = Image.open(style_img_path)
-    c_pix = custom.load()
-    assert original.size == segmented.size
-    width, height = original.size
 
-    for x in range(width):
-        for y in range(height):
-            # Change to >= if you want to get the foreground
-            pixel_is_foreground = is_foreground(segmented.getpixel((x,y)))
-            if mode == 0 and pixel_is_foreground:
-                o_pix[x, y] = c_pix[x, y]
-            elif mode == 1 and not pixel_is_foreground:
-                o_pix[x, y] = c_pix[x, y]
+def make_mask_bw(mask):
+    grayImage = cv2.cvtColor(mask, cv2.COLOR_BGR2GRAY)
+    (_, blackAndWhiteImage) = cv2.threshold(grayImage, 1, 255, cv2.THRESH_BINARY)
+    return blackAndWhiteImage
 
-    original.save(out_name)
-    assert os.path.isfile(out_name)
-    return out_name
 
-def is_foreground(pixel):
-    for mask_color in MASK_COLORS:
-        if distance_fx(pixel, mask_color) <= MASK_DIFF_THRESHOLD:
-            return True
-    return False
+def apply_style_over_original_with_mask(original_file, style_file, mask_file, output_file_name, mode: int = 0):
+    original = cv2.imread(original_file, 1)
+    style = cv2.imread(style_file, 1)
+    mask = cv2.imread(mask_file, 1)
 
-def distance_fx(a, b):
-    assert len(a) == len(b)
-    dist = 0
-    for i in range(len(a)):
-        dist += abs(a[i] - b[i]) ** 2
-    return dist ** 0.5
+    # Make the mask bw to perform bitwise operations, note that we still use RGB to keep the same shape.
+    mask_bw = cv2.cvtColor(make_mask_bw(mask),cv2.COLOR_GRAY2RGB)
+    inv_mask_bw = cv2.bitwise_not(mask_bw)
+
+    if mode == 1:
+        mask_bw, inv_mask_bw = inv_mask_bw, mask_bw
+    # mask_bw are the pixels we want to keep from the styled
+    # inv_mask_bw are the pixels we want to keep from the original
+    original_with_mask = cv2.bitwise_and(original, inv_mask_bw)
+    styled_with_mask = cv2.bitwise_and(style, mask_bw)
+    merged_final = cv2.bitwise_or(original_with_mask, styled_with_mask)
+    cv2.imwrite(output_file_name, merged_final)
+    return merged_final
+
+if __name__ == "__main__":
+    apply_style_over_segmentation("original", "styled", "segmented", "out", 0)
