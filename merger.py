@@ -42,9 +42,6 @@ def validate_arguments(args) -> Tuple[str, bool]:
     if not os.path.exists(args.video):
         message += "Invalid video path.\n"
         err = True
-    if not os.path.exists(args.style_model):
-        message += "Invalid model path.\n"
-        err = True
     return message, err
 
 
