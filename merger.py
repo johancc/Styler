@@ -22,7 +22,7 @@ parser.add_argument("--video",  type=str, help="Path to the video")
 parser.add_argument("--output_name", type=str, help="Name of output file")
 parser.add_argument("--styled_frames",type=str, help="Path to style frames")
 parser.add_argument("--segmented_frames", type=str, help="Path to segmented frames")
-=
+
 parser.add_argument("--background", default=False, type=bool, help="Apply the style only to the background (no-humans)")
 parser.add_argument("--foreground", default=False, type=bool, help="Apply the style only to the foreground (humans).")
 parser.add_argument("--frame_rate", default=30, type=int, help="Frame rate of the video (normally 24 or 30)."
@@ -122,7 +122,7 @@ def merge(video_name, source, styled, segmented, foreground = True):
     final_video_name = os.path.join(args.output_path, video_name + "_merged.mp4")
     add_audio_to_video(styled_video, audio_file, final_video_name)
     return final_video_name
-    
+
 if __name__ == '__main__':
     args = parser.parse_args()
     message, err = validate_arguments(args)
