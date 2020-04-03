@@ -6,8 +6,9 @@ def check_args(args):
     pass
 
 
-def calculate_mean_and_std(dataset_path):
+def calculate_mean_and_std(dataset_path, image_size):
     tensor_transform = transforms.Compose([
+        transforms.Resize(int(image_size*1.15)),
         transforms.ToTensor()
     ])
     dataset = datasets.ImageFolder(dataset_path, transform=tensor_transform)

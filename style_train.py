@@ -37,7 +37,7 @@ if __name__ == "__main__":
     os.makedirs(f"checkpoints", exist_ok=True)
 
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    mean, std = calculate_mean_and_std(args.dataset_path)
+    mean, std = calculate_mean_and_std(args.dataset_path, args.image_size)
     print("Please save the mean and standard deviation, this is needed when running inference.")
     print("Mean: ", mean, " STD: ", std)
     # Create data loader for the training data
