@@ -12,7 +12,7 @@ def calculate_mean_and_std(dataset_path, image_size):
         transforms.ToTensor()
     ])
     dataset = datasets.ImageFolder(dataset_path, transform=tensor_transform)
-    dataloader = DataLoader(dataset, batch_size=8,)
+    dataloader = DataLoader(dataset, batch_size=1)
     mean = 0.
     std = 0.
     for images, _ in dataloader:
