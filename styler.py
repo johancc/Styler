@@ -1,11 +1,8 @@
 """
 This is a command line tool that styles a video using style transfer. The user can specify if the background
 or humans in the video should be styled.
-To create a styled video, we use a pre-trained model based on the Fast Neural Style Transfer model
-(https://github.com/eriklindernoren/Fast-Neural-Style-Transfer).
 The style can be applied to only segments of the video. Currently, we can differentiate the background
 from the people in videos using Human Part Segmentation
-(https://github.com/kevinlin311tw/CDCL-human-part-segmentation).
 - Johan Cervantes, March 2020.
 """
 import argparse
